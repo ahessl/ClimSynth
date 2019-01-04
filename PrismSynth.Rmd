@@ -25,9 +25,8 @@ source('Functions/read.prism.R')
 ```
 
 ```{r min monT}
-#convert pdate to a date recognized by R
-pgrid <- dataFiles2[[1]]
-pgrid$Rdate <- as.Date(pgrid$pdate)
+#Select one gridbox from the list of grids
+pgrid <- dataFiles2[[2]]
 
 ## Minimum monthly temperatures
 mon.min <- pgrid %>% group_by(year=year(pdate), month=month(pdate)) %>%
@@ -43,3 +42,28 @@ plot(as.Date(mon.min$pdate), mon.min$m.min, type='l')
 
 ```{r min.dur}
 #Find duration of the low below a critical threshold
+thresh <- 0
+pgrid$thresh <- pgrid$tmin < thresh
+runs <- rle(pgrid$thresh)
+
+pgrid$runs <- rep(runs$lengths, runs$lengths) #add a new vector that tells the lengths and positions of the runs
+
+#Cumulative values below the mean
+#give each drought unique identifier to aggregate on
+events <- length(runs$values)
+event.ids <- rep(1:events, c(runs$lengths))
+pgrid$event.ids <- event.ids
+
+#start year of each run
+st_year <- aggregate(pgrid, by=list(pgrid$event.ids), min)$pdate
+
+
+#cum scPDSI of each run
+cum_sum <- aggregate(pgrid, by=list(pgrid$event.ids), sum) 
+cum_sum <- cum_sum$recon
+runs_m <- data.frame(cbind(st_year=st_year, cum_sum = round(cum_sum,4), 
+                           lengths = repeats$lengths, value = repeats$values))
+
+
+
+```
