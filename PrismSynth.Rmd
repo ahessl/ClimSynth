@@ -41,7 +41,7 @@ plot(as.Date(mon.min$pdate), mon.min$m.min, type='l')
 
 ```{r min.dur}
 #Find duration of the low below a critical threshold
-thresh <- -2
+thresh <- 0
 pgrid$thresh <- pgrid$tmax < thresh
 runs <- rle(pgrid$thresh)
 
@@ -69,5 +69,22 @@ event.dur <- aggregate(thresh.event, by=list(thresh.event$event.id), min)
 ```{r plot durations}
 barplot(event.dur$runs, names=event.dur$year, ylab="Duration (days)", xlab="Year")
 
+```
+
+But need to fix xaxis as differing number of events per year.  
+Add at least blanks for months with no events
+Stacked barplot for each year
+
+```{r stacked events per year}
+#Reshape the data from long to wide
+dur.year <- event.dur[,c(3:5)]
+
+
+x <- unstack(dur.year, dur.year$runs~dur.year$year) #ok? but a list
+
+
+
+#to try:
+barplot(data, col=colors()[c(23,89,12)] , border="white", space=0.04, font.axis=2, xlab="group")
 
 ```
