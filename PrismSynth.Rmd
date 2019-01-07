@@ -39,10 +39,25 @@ mon.min$pdate <- paste0(mon.min$year, "-", mon.min$month, "-1")
 plot(as.Date(mon.min$pdate), mon.min$m.min, type='l')
 ```
 
-```{r min.dur}
+```{r threshold}
 #Find duration of the low below a critical threshold
 thresh <- 0
 pgrid$thresh <- pgrid$tmax < thresh
+
+pgrid$year <- year(pgrid$pdate)
+pgrid$month <- month(pgrid$pdate)
+pgrid$day <- day(pgrid$pdate)
+
+thresh.event <- pgrid[pgrid$thresh %in% 'TRUE', -c(1:5)] 
+thresh.count <- aggregate(thresh.event, by=list(thresh.event$year), sum)[,1:2]
+
+barplot(thresh.count$thresh, names=thresh.count$Group.1, ylab="Count (days)", xlab="Year")
+
+```
+
+
+
+```{r duration}
 runs <- rle(pgrid$thresh)
 
 pgrid$runs <- rep(runs$lengths, runs$lengths) #add a new vector that tells the lengths and positions of the runs
@@ -50,30 +65,35 @@ pgrid$runs <- rep(runs$lengths, runs$lengths) #add a new vector that tells the l
 #give each run a unique identifier to aggregate on
 events <- length(runs$values)
 pgrid$event.id <- rep(1:events, c(runs$lengths))
-```
-
-```{r events plot}
-#Events below threshold (TRUE) are kept, group by year and month
-event.dur <- pgrid[pgrid$thresh %in% 'TRUE',] 
-
-pgrid$year <- year(pgrid$pdate)
-pgrid$month <- month(pgrid$pdate)
-pgrid$day <- day(pgrid$pdate)
-
-thresh.event <- pgrid[pgrid$thresh %in% 'TRUE', -c(1:5)] 
-event.dur <- aggregate(thresh.event, by=list(thresh.event$event.id), min)
 
 ```
 
 
 ```{r plot durations}
-barplot(event.dur$runs, names=event.dur$year, ylab="Duration (days)", xlab="Year")
-
+#plot bars above and below (thresh==TRUE),
 ```
 
 But need to fix xaxis as differing number of events per year.  
 Add at least blanks for months with no events
 Stacked barplot for each year
+
+
+
+```{r events plot}
+#Events below threshold (TRUE) & longer than 5 days are kept, group by year and month
+
+long.event <- pgrid[pgrid$thresh %in% 'TRUE' & pgrid$runs >= 5, -c(1:6)] 
+
+#start date and length of each run below threshold
+long.st.date <- aggregate(long.event, by=list(long.event$event.id), min)
+
+num.long.yr <- aggregate(long.st.date, by=list(long.st.date$year), length)[, c(1, 6)]
+
+barplot(num.long.yr$runs, names=num.long.yr$Group.1, ylab="No. Long Freeze (>5 days)", xlab="Year")
+
+```
+
+
 
 ```{r stacked events per year}
 #Reshape the data from long to wide
