@@ -48,10 +48,17 @@ pgrid$year <- year(pgrid$pdate)
 pgrid$month <- month(pgrid$pdate)
 pgrid$day <- day(pgrid$pdate)
 
+#Adjust Nov and Dec to be subsequent year
+prev.win <- c(11, 12)
+adj.year <- ifelse (pgrid$month %in% prev.win, pgrid$year+1, pgrid$year)
+pgrid$year <- adj.year
+
 thresh.event <- pgrid[pgrid$thresh %in% 'TRUE', -c(1:5)] 
+
+#Count number of days tmax < thresh
 thresh.count <- aggregate(thresh.event, by=list(thresh.event$year), sum)[,1:2]
 
-barplot(thresh.count$thresh, names=thresh.count$Group.1, ylab="Count (days)", xlab="Year")
+barplot(thresh.count$thresh[-38], names=thresh.count$Group.1[-38], ylab="Count (days)", xlab="Year")
 
 ```
 
@@ -87,9 +94,11 @@ long.event <- pgrid[pgrid$thresh %in% 'TRUE' & pgrid$runs >= 5, -c(1:6)]
 #start date and length of each run below threshold
 long.st.date <- aggregate(long.event, by=list(long.event$event.id), min)
 
+adj.year <- ifelse (thresh.event$month %in% prev.win, thresh.event$year+1, thresh.event$year)
+thresh.event$year <- adj.year
 num.long.yr <- aggregate(long.st.date, by=list(long.st.date$year), length)[, c(1, 6)]
 
-barplot(num.long.yr$runs, names=num.long.yr$Group.1, ylab="No. Long Freeze (>5 days)", xlab="Year")
+barplot(num.long.yr$runs[-37], names=num.long.yr$Group.1[-37], ylab="No. Long Freeze (>5 days)", xlab="Year")
 
 ```
 
