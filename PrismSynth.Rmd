@@ -25,8 +25,8 @@ source('Functions/read.prism.R')
 ```
 
 ```{r min monT}
-#Select one gridbox from the list of grids
-pgrid <- dataFiles2[[2]]
+#Select one gridbox file from the list of grids
+pgrid <- dataFiles[[2]]
 
 ## Minimum monthly temperatures
 mon.min <- pgrid %>% group_by(year=year(pdate), month=month(pdate)) %>% summarize(m.min=min(tmin))
@@ -115,5 +115,18 @@ x <- unstack(dur.year, dur.year$runs~dur.year$year) #ok? but a list
 
 #to try:
 barplot(data, col=colors()[c(23,89,12)] , border="white", space=0.04, font.axis=2, xlab="group")
+
+```
+
+
+
+```{r get monthly data}
+pgridm <- dataFiles[[1]] #happens to be 1st file
+#add readable time variable for plotting
+
+pgridm$pdate <- paste0(pgridm$pdate, "-01")
+
+plot(as.Date(pgridm$pdate), pgridm$tmin, type='l')
+#truncate to 1960:2018?
 
 ```
