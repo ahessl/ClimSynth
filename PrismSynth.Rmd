@@ -9,9 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Read and extract annual winter lows from PRISM Data
-
-
+Read and extract annual winter lows from PRISM Data
 
 ```{r setup}
 rm(list=ls())
@@ -19,9 +17,17 @@ library(lubridate)
 library(tidyverse)
 ```
 
+Read in all prism files in data/daily_cv directory, reformat and arrange as a list
 ```{r read.prism}
 #call function read.prism.R
 source('Functions/read.prism.R')
+```
+
+Create a mean of the prism file list
+```{r mean}
+#trial <- lapply(dataFiles, mean)
+
+
 ```
 
 ```{r min monT}
@@ -106,27 +112,42 @@ barplot(num.long.yr$runs[-37], names=num.long.yr$Group.1[-37], ylab="No. Long Fr
 
 ```{r stacked events per year}
 #Reshape the data from long to wide
-dur.year <- event.dur[,c(3:5)]
-
-
-x <- unstack(dur.year, dur.year$runs~dur.year$year) #ok? but a list
-
-
-
-#to try:
-barplot(data, col=colors()[c(23,89,12)] , border="white", space=0.04, font.axis=2, xlab="group")
+# dur.year <- event.dur[,c(3:5)]
+# 
+# 
+# x <- unstack(dur.year, dur.year$runs~dur.year$year) #ok? but a list
+# 
+# 
+# 
+# #to try:
+# barplot(data, col=colors()[c(23,89,12)] , border="white", space=0.04, font.axis=2, xlab="group")
 
 ```
 
+Monthly Data (tmin, tmax)
 
-
-```{r get monthly data}
+```{r plot monthly data}
 pgridm <- dataFiles[[1]] #happens to be 1st file
 #add readable time variable for plotting
 
 pgridm$pdate <- paste0(pgridm$pdate, "-01")
 
-plot(as.Date(pgridm$pdate), pgridm$tmin, type='l')
+pgridm_post1960 <- pgridm[pgridm$pdate >= "1960-01-01",]
+plot(as.Date(pgridm_post1960$pdate), pgridm_post1960$tmin, type='l')
 #truncate to 1960:2018?
 
+```
+
+
+```{r plot annual min}
+#adjust Nov, Dec to subsequent year
+pgridm$year <- year(pgridm$pdate)
+pgridm$month <- month(pgridm$pdate)
+
+adj.year <- ifelse (pgridm$month %in% prev.win, pgridm$year+1, pgridm$year)
+pgridm$year <- adj.year
+
+win.min <- aggregate(pgridm, by=list(pgridm$year), min)[,c(4,7)]
+plot(win.min$year, win.min$tmin, type='l', xlab='Year', ylab='MinMonT')
+text(1965, -16, "Ohio R Froze")
 ```
