@@ -21,13 +21,12 @@ Read in all prism files in data/daily_cv directory, reformat and arrange as a li
 ```{r read.prism}
 #call function read.prism.R
 source('Functions/read.prism.R')
-pgrid.list <- read.prism("daily_cv")
+pgrid.list <- read.prism("daily_pr")
 ```
 
 
-
 ```{r min monT}
-#Select one gridbox file from the list of grids
+#Select just the mean of the dataframes to work with
 pgrid <- pgrid.list$pgrid.df
 
 ## Minimum monthly temperatures
@@ -59,10 +58,32 @@ thresh.event <- pgrid[pgrid$thresh %in% 'TRUE', -c(1:5)]
 
 #Count number of days tmax < thresh
 thresh.count <- aggregate(thresh.event, by=list(thresh.event$year), sum)[,1:2]
+names(thresh.count) <- c("Year", "Count")
+thresh.count <- thresh.count[-38,]
 
-barplot(thresh.count$thresh[-38], names=thresh.count$Group.1[-38], ylab="Count (neg degree days)", xlab="Year")
+barplot(thresh.count$Count, names=thresh.count$Year, ylab="Count (neg degree days)", xlab="Year")
 
 ```
+
+```{r lolliplot}
+#remake as lollipop charts in GGplot
+library(ggplot2)
+theme_set(theme_bw())
+
+# Plot
+ggplot(thresh.count, aes(x=Year, y=Count)) + 
+  geom_point(size=2) + 
+  geom_segment(aes(x=Year, 
+                   xend=Year, 
+                   y=0, 
+                   yend=Count)) + 
+  labs(title="Lollipop Chart", 
+       subtitle="Count Negative Degree Days", 
+       caption="source: Prism Daily") + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  scale_x_discrete (limits=c(1981:2017))
+```
+
 
 ```{r negative degree days}
 #Select only events below thresh and only needed cols
@@ -71,12 +92,28 @@ neg.days <- pgrid[pgrid$thresh %in% 'TRUE', c("tmax", "year", "month")]
 #cumulative sum of negative degree days
 neg.dd <- aggregate(neg.days, by=list(neg.days$year), sum)[,c(1,2)]
 names(neg.dd) <- c("Year", "sumTmax")
+neg.dd <- neg.dd[-38,]
 
-barplot(neg.dd$sumTmax, names=neg.dd$Year, ylim=c(0,-350), ylab="Sum (neg degree days)", xlab="Year")
+barplot(neg.dd$sumTmax, names=neg.dd$Year, ylim=c(0,-350), ylab="Sum (neg degree days)", xlab="Year", )
 
 ```
+Lollipop of Cumulative Negative Degree Days
+```{r lollipop DD sum}
+# Plot
+ggplot(neg.dd, aes(x=Year, y=sumTmax)) + 
+  geom_point(size=2) + 
+  geom_segment(aes(x=Year, 
+                   xend=Year, 
+                   y=0, 
+                   yend=sumTmax)) + 
+  labs(title="Lollipop Chart", 
+       subtitle="Sum Negative Degree Days", 
+       caption="source: Prism Daily") + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  scale_x_discrete (limits=c(1981:2017))
+```
 
-
+Duration of Events
 ```{r duration}
 runs <- rle(pgrid$thresh)
 
@@ -102,7 +139,7 @@ barplot(num.long.yr$runs[-37], names=num.long.yr$Group.1[-37], ylab="No. Long Fr
 ```
 
 Read in Monthly Data (tmin, tmax)
-
+Need to update read.prism.R with ifelse for monthly due to date diffs
 ```{r plot monthly data}
 rm(list=ls())
 library(lubridate)

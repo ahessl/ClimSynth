@@ -20,7 +20,7 @@ read.prism <- function(data.dir) {
     #abind combines dataframes (or matrices, vectors etc) into arrays along a dimension
     #first remove the date column and save it
     dataFiles.num <- lapply(dataFiles, function(x) { x["pdate"] <- NULL; x })
-    pdate <- as.Date(dataFiles[[1]]$pdate)
+    pdate <- as.Date(dataFiles[[1]]$pdate) ###Problem for monthly data
     
     dataFiles.mn <- apply(abind::abind(dataFiles.num, along = 3), 1:2, mean, na.rm=T) #returns matrix 
     
