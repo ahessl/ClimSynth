@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Read and extract annual winter lows from PRISM Data
 
-```{r setup}
+```{r libraries, message=FALSE, warning=FALSE, paged.print=FALSE}
 rm(list=ls())
 library(lubridate)
 library(tidyverse)
@@ -24,6 +24,7 @@ source('Functions/read.prism.R')
 pgrid.list <- read.prism("daily_pr")
 ```
 
+Select the data from read.prism list, derive min monthly T, and add time variable for plotting
 
 ```{r min monT}
 #Select just the mean of the dataframes to work with
@@ -94,9 +95,9 @@ neg.dd <- aggregate(neg.days, by=list(neg.days$year), sum)[,c(1,2)]
 names(neg.dd) <- c("Year", "sumTmax")
 neg.dd <- neg.dd[-38,]
 
-barplot(neg.dd$sumTmax, names=neg.dd$Year, ylim=c(0,-350), ylab="Sum (neg degree days)", xlab="Year", )
-
+barplot(neg.dd$sumTmax, names=neg.dd$Year, ylim=c(0,-350), ylab="Sum (neg degree days)", xlab="Year")
 ```
+
 Lollipop of Cumulative Negative Degree Days
 ```{r lollipop DD sum}
 # Plot
@@ -138,23 +139,25 @@ barplot(num.long.yr$runs[-37], names=num.long.yr$Group.1[-37], ylab="No. Long Fr
 
 ```
 
-Read in Monthly Data (tmin, tmax)
-Need to update read.prism.R with ifelse for monthly due to date diffs
+
+Read in Monthly Data
 ```{r plot monthly data}
+
 rm(list=ls())
 library(lubridate)
 library(tidyverse)
 source('Functions/read.prism.R')
 pgrid.list <- read.prism("mon_cv")
 
-pgridm <- dataFiles[[1]] #happens to be 1st file
-#add readable time variable for plotting
+#Read the averaged data from pgrid.list
+pgridm <- pgrid.list$pgrid.df
 
+#add readable time variable for plotting
 pgridm$pdate <- paste0(pgridm$pdate, "-01")
 
-pgridm_post1960 <- pgridm[pgridm$pdate >= "1960-01-01",]
-plot(as.Date(pgridm_post1960$pdate), pgridm_post1960$tmin, type='l')
-#truncate to 1960:2018?
+pgridm_sub <- pgridm[pgridm$pdate >= "1970-01-01",]
+{plot(as.Date(pgridm_sub$pdate), pgridm_sub$tmin, type='l')
+abline(h=mean(pgridm_sub$tmin))}
 
 ```
 
@@ -164,10 +167,11 @@ plot(as.Date(pgridm_post1960$pdate), pgridm_post1960$tmin, type='l')
 pgridm$year <- year(pgridm$pdate)
 pgridm$month <- month(pgridm$pdate)
 
+prev.win <- c(11, 12)
 adj.year <- ifelse (pgridm$month %in% prev.win, pgridm$year+1, pgridm$year)
-pgridm$year <- adj.year
+pgridm$adj.year <- adj.year
 
-win.min <- aggregate(pgridm, by=list(pgridm$year), min)[,c(4,7)]
-plot(win.min$year, win.min$tmin, type='l', xlab='Year', ylab='MinMonT')
-text(1965, -16, "Ohio R Froze")
+win.min <- aggregate(pgridm, by=list(pgridm$adj.year), min)[,c(3,7)]
+{plot(win.min$year, win.min$tmin, type='l', xlab='Year', ylab='MinMonT', main="Annual Low T")
+text(1964, -16, "Ohio R Froze")}
 ```
