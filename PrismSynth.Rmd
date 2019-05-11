@@ -3,7 +3,6 @@ title: "PrismLows"
 author: "A Hessl"
 date: "1/3/2019"
 output:
-  pdf_document: default
   html_document: default
 ---
 
@@ -11,12 +10,13 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Read and extract annual winter lows from PRISM Data
+### Daily PRISM Data
 
-```{r libraries, message=FALSE, warning=FALSE, paged.print=FALSE}
+Read and extract annual winter lows from PRISM Data
+```{r install libraries, message=TRUE, warning=TRUE}
 rm(list=ls())
-library(lubridate)
 library(tidyverse)
+library(lubridate)
 ```
 
 Read in all prism files in data/daily_cv directory, reformat and arrange as a list
@@ -43,6 +43,7 @@ mon.min$pdate <- paste0(mon.min$year, "-", mon.min$month, "-1")
 plot(as.Date(mon.min$pdate), mon.min$m.min, type='l', xlab="Year", ylab="MinMonT(C)", main="Min Monthly T")
 ```
 
+Count of Degree Days Below a Threshold
 ```{r threshold}
 #Find duration of the low below a critical threshold
 thresh <- 0
@@ -64,7 +65,7 @@ thresh.count <- aggregate(thresh.event, by=list(thresh.event$year), sum)[,1:2]
 names(thresh.count) <- c("Year", "Count")
 thresh.count <- thresh.count[-38,]
 
-barplot(thresh.count$Count, names=thresh.count$Year, ylab="Count (neg degree days)", xlab="Year")
+#barplot(thresh.count$Count, names=thresh.count$Year, ylab="Count (neg degree days)", xlab="Year")
 
 ```
 
@@ -87,7 +88,7 @@ ggplot(thresh.count, aes(x=Year, y=Count)) +
   scale_x_discrete (limits=c(1981:2017))
 ```
 
-
+Cumulative Sum of Negative Degree Days
 ```{r negative degree days}
 #Select only events below thresh and only needed cols
 neg.days <- pgrid[pgrid$thresh %in% 'TRUE', c("tmax", "year", "month")] 
@@ -97,10 +98,9 @@ neg.dd <- aggregate(neg.days, by=list(neg.days$year), sum)[,c(1,2)]
 names(neg.dd) <- c("Year", "sumTmax")
 neg.dd <- neg.dd[-38,]
 
-barplot(neg.dd$sumTmax, names=neg.dd$Year, ylim=c(0,-350), ylab="Sum (neg degree days)", xlab="Year")
+#barplot(neg.dd$sumTmax, names=neg.dd$Year, ylim=c(0,-350), ylab="Sum (neg degree days)", xlab="Year")
 ```
 
-Lollipop of Cumulative Negative Degree Days
 ```{r lollipop DD sum}
 # Plot
 ggplot(neg.dd, aes(x=Year, y=sumTmax)) + 
@@ -137,11 +137,28 @@ long.st.date <- aggregate(long.event, by=list(long.event$event.id), min)
 
 num.long.yr <- aggregate(long.st.date, by=list(long.st.date$year), length)[, c(1, 6)]
 
-barplot(num.long.yr$runs[-37], names=num.long.yr$Group.1[-37], ylab="No. Long Freeze (>5 days)", xlab="Year")
+#barplot(num.long.yr$runs[-37], names=num.long.yr$Group.1[-37], ylab="No. Long Freeze (>5 days)", xlab="Year")
 
 ```
 
+```{r lollipop long event}
+# Plot
+ggplot(num.long.yr[-36,], aes(x=Group.1, y=runs)) + 
+  geom_point(size=2) + 
+  geom_segment(aes(x=Group.1, 
+                   xend=Group.1, 
+                   y=0, 
+                   yend=runs)) + 
+  labs(title="Lollipop Chart", 
+       subtitle="Long Cold Runs", 
+       caption="source: Prism Daily",
+       x="Year",
+       y="Num Runs") + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  scale_x_discrete (limits=c(1981:2017))
+```
 
+### Monthly Data
 Read in Monthly Data
 ```{r plot monthly data}
 
@@ -163,7 +180,7 @@ abline(h=mean(pgridm_sub$tmin))}
 
 ```
 
-
+Plot Annual Minimum Temperature
 ```{r plot annual min}
 #adjust Nov, Dec to subsequent year
 pgridm$year <- year(pgridm$pdate)
@@ -176,4 +193,33 @@ pgridm$adj.year <- adj.year
 win.min <- aggregate(pgridm, by=list(pgridm$adj.year), min)[,c(3,7)]
 {plot(win.min$year, win.min$tmin, type='l', xlab='Year', ylab='MinMonT', main="Annual Low T")
 text(1964, -16, "Ohio R Froze")}
+```
+
+Lollipop Plot of tmin and tmax for each winter (N, D, J, F)
+ ```{r lollipop tmin tmax}
+# # select just winter (11,12, 1, 2)
+# winter <- c(11, 12, 1, 2)
+# pgridm.win <- pgridm[pgridm$month %in% winter, c(2, 4, 6, 7)]
+# aggregate (pgridm.win, by=list())
+# 
+# ggplot(pgridm) +
+#   geom_segment( aes(x=x, xend=x, y=value1, yend=value2), color="grey") +
+#   geom_point( aes(x=x, y=value1), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
+#   geom_point( aes(x=x, y=value2), color=rgb(0.7,0.2,0.1,0.5), size=3 ) +
+#   coord_flip() 
+#  
+# # With a bit more style
+# ggplot(data) +
+#   geom_segment( aes(x=x, xend=x, y=value1, yend=value2), color="grey") +
+#   geom_point( aes(x=x, y=value1), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
+#   geom_point( aes(x=x, y=value2), color=rgb(0.7,0.2,0.1,0.5), size=3 ) +
+#   coord_flip()+
+#   theme_light() +
+#   theme(
+#     legend.position = "none",
+#     panel.border = element_blank(),
+#   ) +
+#   xlab("") +
+#   ylab("Value of Y")
+# 
 ```
