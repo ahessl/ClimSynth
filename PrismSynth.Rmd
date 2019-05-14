@@ -211,3 +211,5 @@ MJJ <- grow.seas (pgrid, sel_mons = c(5:7), sel_vars = c(3:5), st_mon = 11, sum_
 
 plot(MJJ$year, MJJ$tmin, xlab="Year", ylab="MJJ mean minT")
 ```
+
+Next Up: working on lapply over all regional_pr monthly files.

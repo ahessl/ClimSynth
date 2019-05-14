@@ -21,3 +21,7 @@ Select starting year of growing season, length of growing season to summarize, m
  grow.seas (pgrid, sel_mons = c(5:7), sel_vars = c(3:5), st_mon = 11, sum_f = c("mean", "sum"))
 ```
 Calculates a growing season mean or sum of long form monthly climate data from Prism grids
+
+##### To Do List
+working on lapply over all regional_pr monthly files.
+
