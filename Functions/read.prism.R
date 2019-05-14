@@ -1,5 +1,5 @@
 #read.prism.R
-#Function to read PRISM time series data from a directory
+#Function to read PRISM monthly time series data from a directory
 #Rename the col headings, return a list of all prism files in directory
 #read.prism()
 read.prism <- function(site) {
