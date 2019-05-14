@@ -17,7 +17,7 @@ grow.seas <- function (pgrid, sel_mons, sel_vars, st_mon,
                        sum_f){
     
     stopifnot(is.numeric(sel_mons), is.numeric(sel_vars),
-              is.numeric(st_mon), max(sel_mons)<=12, st_mon>12, 
+              is.numeric(st_mon), max(sel_mons)<=12, st_mon<=12, 
               is.character(sum_f))
   
     sel_mon_l <- paste0(substr(month.abb[sel_mons], 1, 1), collapse='') #first letter of selected months

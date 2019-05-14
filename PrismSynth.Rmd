@@ -195,31 +195,19 @@ win.min <- aggregate(pgridm, by=list(pgridm$adj.year), min)[,c(3,7)]
 text(1964, -16, "Ohio R Froze")}
 ```
 
-Lollipop Plot of tmin and tmax for each winter (N, D, J, F)
- ```{r lollipop tmin tmax}
-# # select just winter (11,12, 1, 2)
-# winter <- c(11, 12, 1, 2)
-# pgridm.win <- pgridm[pgridm$month %in% winter, c(2, 4, 6, 7)]
-# aggregate (pgridm.win, by=list())
-# 
-# ggplot(pgridm) +
-#   geom_segment( aes(x=x, xend=x, y=value1, yend=value2), color="grey") +
-#   geom_point( aes(x=x, y=value1), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
-#   geom_point( aes(x=x, y=value2), color=rgb(0.7,0.2,0.1,0.5), size=3 ) +
-#   coord_flip() 
-#  
-# # With a bit more style
-# ggplot(data) +
-#   geom_segment( aes(x=x, xend=x, y=value1, yend=value2), color="grey") +
-#   geom_point( aes(x=x, y=value1), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
-#   geom_point( aes(x=x, y=value2), color=rgb(0.7,0.2,0.1,0.5), size=3 ) +
-#   coord_flip()+
-#   theme_light() +
-#   theme(
-#     legend.position = "none",
-#     panel.border = element_blank(),
-#   ) +
-#   xlab("") +
-#   ylab("Value of Y")
-# 
+### Create Growing Season Summaries
+Use the read.prism.R function to format the monthly data files and return a list of grid point files
+
+```{r growing season summaries}
+
+source("Functions/read.prism.R")
+
+pgrid.list <- read.prism("mon_cv")
+pgrid <- pgrid.list[[1]]
+
+source("Functions/grow.seas.R")
+
+MJJ <- grow.seas (pgrid, sel_mons = c(5:7), sel_vars = c(3:5), st_mon = 11, sum_f = "mean")
+
+plot(MJJ$year, MJJ$tmin, xlab="Year", ylab="MJJ mean minT")
 ```
