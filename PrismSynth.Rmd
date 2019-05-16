@@ -202,8 +202,9 @@ Use the read.prism.R function to format the monthly data files and return a list
 
 source("Functions/read.prism.R")
 
-pgrid.list <- read.prism("regional_pr")
-pgrid <- pgrid.list[[1]]
+pgrid.list <- read.prism("cv")
+
+pgrid <- pgrid.list$pgrid.df
 
 source("Functions/grow.seas.R")
 

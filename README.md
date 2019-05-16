@@ -3,25 +3,29 @@
 #### Two Functions: read.prism.R and grow.seas.R
 
 ##### read.prism.R
-read.prism(directory)
-Reads in prism data from a directory in "Data"", renames some columns and formats for package treeclim. Returns a list of all the prism files in that directory. Can be subsetted:
+read.prism(site)
+
+Reads in monthly prism data from a directory/site in "Data", renames some columns and formats for package treeclim. Returns a list that includes a vector of all the files used (prism.files), a list that contains all the raw  data files used (dataFiles), and a dataframe mean of each variable from all the prism files in that directory (pgrid.df)
 
 ```r
-pgrid.list[[1]]
+ source("Functions/read.prism.R")
+ read.prism("cv")
 ```
 
-
 ##### grow.seas.R
+grow.seas(pgrid, sel_mons = NUM, sel_vars = NUM, st_mon = NUM, sum_f = FUN)
 
-Takes the product of Summarize monthly prism climate data by temporal windows of months
-Select starting year of growing season, length of growing season to summarize, mean or sum
+Takes the product of read.prism (pgrid.df) and summarizes monthly prism climate data by temporal windows of months
+Select starting year of growing season, length of growing season to summarize, mean or sum, returns dataframe of growing season months included, years, climate variables included (gr_seas_df)
 
 ```r
  source("Functions/grow.seas.R")
  grow.seas (pgrid, sel_mons = c(5:7), sel_vars = c(3:5), st_mon = 11, sum_f = c("mean", "sum"))
 ```
-Calculates a growing season mean or sum of long form monthly climate data from Prism grids
+
 
 ##### To Do List
-working on lapply over all regional_pr monthly files.
+1) Create an option in read.prism for daily files
+1) Separate grow.seas.R into a separate function to set beginning of growth year and one to summarize by user defined growing season.
+
 
