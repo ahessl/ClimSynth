@@ -22,7 +22,6 @@ grow.seas <- function (pgrid, sel_mons, sel_vars, st_mon,
   
     sel_mon_l <- paste0(substr(month.abb[sel_mons], 1, 1), collapse='') #first letter of selected months
     var_names <- colnames(pgrid[sel_vars])
-    pgrid$pdate <- paste0(pgrid$pdate, "-01")
     pgrid$mon <- month(pgrid$pdate)
     pgrid$year <- year(pgrid$pdate)
     

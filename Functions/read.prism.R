@@ -5,15 +5,26 @@
 read.prism <- function(site) {
     data.path <- paste0("Data/climate_data/", site)
     
-    prism.files <- list.files(data.path) 
-
     glob.path <- paste0(data.path, "*monthly.csv")   
     
     dataFiles <- lapply(Sys.glob(glob.path), read.csv, skip=11, head=F)
-    
+    prism.files <- basename(Sys.glob(glob.path))
     
     climvars <- c("pdate", "ppt", "tmin", "tmean", "tmax")
     dataFiles <- lapply(dataFiles, setNames, climvars)
-    #dataMean <- lapply(dataFiles, mean, simplify=TRUE)
-}
 
+    # Create a mean of the dataFrames list
+    # abind combines dataframes (or matrices, vectors etc) into 
+    # arrays along a dimension
+    # first remove the date column and save it
+    dataFiles.num <- lapply(dataFiles, function(x) { x["pdate"] <- NULL; x })
+    
+    dataFiles.mn <- apply(abind::abind(dataFiles.num, along = 3), 1:2, mean, na.rm=T) #returns matrix 
+
+    pgrid.df <- data.frame(dataFiles.mn)
+    pdate <- as.Date(paste0(dataFiles[[1]]$pdate, "-01"))
+    pgrid.df$pdate <- as.Date(pdate)
+    pgrid.df <- pgrid.df[c(5, 1:4)]
+    pgrid.output <- list (prism.files=prism.files, dataFiles=dataFiles, pgrid.df=pgrid.df)
+
+}
