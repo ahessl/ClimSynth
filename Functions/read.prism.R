@@ -3,16 +3,17 @@
 #Rename the col headings, return a list of all prism files in directory
 #read.prism()
 read.prism <- function(site) {
-    data.path <- paste0("Data/", site)
+    data.path <- paste0("Data/climate_data/", site)
     
     prism.files <- list.files(data.path) 
 
-    glob.path <- paste0(data.path, "/*monthly.csv")   
+    glob.path <- paste0(data.path, "*monthly.csv")   
     
     dataFiles <- lapply(Sys.glob(glob.path), read.csv, skip=11, head=F)
     
     
     climvars <- c("pdate", "ppt", "tmin", "tmean", "tmax")
     dataFiles <- lapply(dataFiles, setNames, climvars)
+    #dataMean <- lapply(dataFiles, mean, simplify=TRUE)
 }
 
