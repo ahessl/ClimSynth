@@ -3,13 +3,13 @@
 #### Two Functions: read.prism.R and grow.seas.R
 
 ##### read.prism.R
-read.prism(site)
+read.prism(site, tstep)
 
-Reads in monthly prism data from a directory/site in "Data", renames some columns and formats for package treeclim. Returns a list that includes a vector of all the files used (prism.files), a list that contains all the raw  data files used (dataFiles), and a dataframe mean of each variable from all the prism files in that directory (pgrid.df)
+Reads in daily or monthly prism data from a directory/site in "Data/climate_data/", renames some columns and formats for package treeclim. Returns a list that includes a vector of all the files used (prism.files), a list that contains all the raw  data files used (dataFiles), and a dataframe mean of each variable from all the prism files in that directory (pgrid.df)
 
 ```r
  source("Functions/read.prism.R")
- read.prism("cv")
+ read.prism("cv", "daily")
 ```
 
 ##### grow.seas.R
