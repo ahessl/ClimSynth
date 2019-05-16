@@ -25,7 +25,7 @@ Select starting year of growing season, length of growing season to summarize, m
 
 
 ##### To Do List
-1) Create an option in read.prism for daily files
 1) Separate grow.seas.R into a separate function to set beginning of growth year and one to summarize by user defined growing season.
+1) Be able to download from prism site.
 
 

@@ -3,8 +3,9 @@
 #Rename the col headings, return a list of all prism files in directory
 #read.prism()
 read.prism <- function(site, tstep) {
-    data.path <- "Data/climate_data/"
+    stopifnot(is.character(site), any(tstep == c('monthly','daily')))
     
+    data.path <- "Data/climate_data/"
     glob.path <- paste0(data.path, site, "*", tstep, ".csv")   
     
     dataFiles <- lapply(Sys.glob(glob.path), read.csv, skip=11, head=F)
@@ -13,12 +14,11 @@ read.prism <- function(site, tstep) {
     climvars <- c("pdate", "ppt", "tmin", "tmean", "tmax")
     dataFiles <- lapply(dataFiles, setNames, climvars)
 
-    # Create a mean of the dataFrames list
-    # abind combines dataframes (or matrices, vectors etc) into 
-    # arrays along a dimension
-    # first remove the date column and save it
+    
+    # remove the date column and save it
     dataFiles.num <- lapply(dataFiles, function(x) { x["pdate"] <- NULL; x })
     
+    # Create a mean of the dataFrames list using abind
     dataFiles.mn <- apply(abind::abind(dataFiles.num, along = 3), 1:2, mean, na.rm=T) #returns matrix 
 
     pgrid.df <- data.frame(dataFiles.mn)
