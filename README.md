@@ -26,6 +26,6 @@ Select starting year of growing season, length of growing season to summarize, m
 
 ##### To Do List
 1) Separate grow.seas.R into a separate function to set beginning of growth year and one to summarize by user defined growing season.
-1) Be able to download from prism site.
+1) Be able to download from prism site. Not so easy - have to download grids, one year at a time.
 
 
